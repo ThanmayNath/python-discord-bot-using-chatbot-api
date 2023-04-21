@@ -5,7 +5,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-
 async def send_message(message, user_message, is_private):
     try:
         response = responses.get_response(user_message)

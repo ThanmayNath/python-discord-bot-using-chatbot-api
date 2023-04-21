@@ -1,4 +1,3 @@
-import random
 import requests
 import json
 import os
@@ -7,28 +6,27 @@ load_dotenv()
 
 def get_response(message: str) -> str:
     p_message = message.lower()
-
+    prompt=os.environ.get('DETAIL')+message.lower()
     if p_message == 'hello':
         return 'Hey there!'
 
-    if message == 'roll':
-        return str(random.randint(1, 6))
-
-    if p_message == '!help':
-        return '`This is a help message that you can modify.`'
-    
     url = os.environ.get('URL')
-
-    querystring = {"message":p_message,"uid":os.environ.get('UID')}
-
-    headers = {
-	os.environ.get('API-KEY'): os.environ.get('KEY'),
-	os.environ.get('API-HOST'): os.environ.get('HOST')
+    payload = {
+	"model": "gpt-3.5-turbo",
+	"messages": [
+		{
+			"role": os.environ.get('UID'),
+			"content": prompt
+		}
+	]
     }
-
-    response = requests.request("GET", url, headers=headers, params=querystring)
-
+    headers = {
+	"content-type": "application/json",
+	os.environ.get('API-KEY'):os.environ.get('KEY'),
+	os.environ.get('API-HOST'):os.environ.get('HOST')
+    }
+    response = requests.request("POST", url, json=payload, headers=headers)
     response_dict = json.loads(response.text)
-    print(response_dict['chatbot']['response'])
-
-    return (response_dict['chatbot']['response'])
+    content = response_dict["choices"][0]["message"]["content"]
+    print(content)
+    return content
